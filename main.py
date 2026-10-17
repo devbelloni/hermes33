@@ -28,7 +28,9 @@ OLLAMA_HOST = os.getenv("OLLAMA_HOST", "http://ollama:11434")
 
 # API Keys permitidas (pode vir de variável de ambiente ou .env)
 API_KEY_HEADER = APIKeyHeader(name="X-API-Key", auto_error=False)
-ALLOWED_API_KEYS = set(os.getenv("API_KEYS", "sk-minha-chave-secreta-123").split(","))
+ALLOWED_API_KEYS = {k.strip() for k in os.getenv("API_KEYS", "").split(",") if k.strip()}
+if not ALLOWED_API_KEYS:
+    raise RuntimeError("API_KEYS environment variable is required (comma-separated list of keys)")
 
 async def get_api_key(api_key: Optional[str] = Security(API_KEY_HEADER)):
     if not api_key or api_key.strip() not in ALLOWED_API_KEYS:
